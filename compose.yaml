@@ -58,5 +58,7 @@ services:
 
 volumes:
   llm_models:
+    # Set LLM_MODELS_VOLUME in a .env next to this file to reuse a volume that already holds the model.
+    name: ${LLM_MODELS_VOLUME:-deskpilot_llm_models}
   qdrant_data:
   backend_data:

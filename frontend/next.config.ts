@@ -29,6 +29,8 @@ const config: NextConfig = {
   // Compression would buffer the assistant's Server-Sent Events; a reverse proxy can compress instead.
   compress: false,
   poweredByHeader: false,
+  // The proxy to the API gives up after 30 s by default; a CPU-only model can need longer.
+  experimental: { proxyTimeout: 300_000 },
   async rewrites() {
     return [{ source: "/api/:path*", destination: `${backend}/api/:path*` }];
   },

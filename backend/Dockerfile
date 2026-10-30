@@ -14,5 +14,5 @@ RUN useradd --create-home app && mkdir -p data && chown app data
 USER app
 ENV PATH=/app/.venv/bin:$PATH FASTEMBED_CACHE_PATH=/app/data/fastembed HF_HOME=/app/data/hf
 EXPOSE 8600
-HEALTHCHECK --interval=15s --timeout=3s --start-period=120s CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8600/api/health')"
+HEALTHCHECK --interval=15s --timeout=3s --start-period=600s CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8600/api/health')"
 CMD ["uvicorn", "--factory", "app.main:create_app", "--host", "0.0.0.0", "--port", "8600"]
