@@ -1,0 +1,49 @@
+[project]
+name = "deskpilot"
+version = "0.0.0"
+description = "AI assistant that acts inside a support desk app: multi-agent LangGraph, tool calling, RBAC, RAG, voice."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi==0.143.3",
+  "uvicorn[standard]==0.54.0",
+  "sqlalchemy==2.1.5",
+  "pydantic==2.14.1",
+  "pydantic-settings==2.16.0",
+  "pyjwt==2.15.1",
+  "python-multipart==0.0.31",
+  "langgraph==1.2.16",
+  "langgraph-checkpoint-sqlite==3.1.2",
+  "langchain-core==1.6.12",
+  "langchain-openai==1.7.2",
+  "qdrant-client==1.19.1",
+  "fastembed==0.9.0",
+  "httpx==0.28.1",
+]
+
+[project.optional-dependencies]
+# av 19 dropped an argument faster-whisper 1.2.1 still passes, so stay on av 18.
+voice = ["faster-whisper==1.2.1", "piper-tts==1.8.0", "av>=14,<19"]
+
+[dependency-groups]
+dev = ["pytest==9.1.1", "ruff==0.17.1"]
+
+[tool.uv]
+package = false
+exclude-newer = "2026-10-17T00:00:00Z"
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "ASYNC"]
+ignore = ["S101"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff.lint.per-file-ignores]
+"app/seed.py" = ["S105", "S311", "E501"]
+"tests/*" = ["S105", "S106"]
+"evals/*" = ["S105", "S106"]
