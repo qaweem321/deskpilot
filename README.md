@@ -93,23 +93,27 @@ Set `LLM_API_KEY` to that provider's key.
 
 `uv run python -m evals.run` (in `backend/`) runs all 39 scenarios. Each one runs in a fresh database through the HTTP API, and confirmations are auto-approved unless the case says otherwise.
 
-Measured with the local **Qwen2.5-3B-Instruct (Q4_K_M)** on a 2-core laptop CPU, LLM router:
+Measured with the local **Qwen2.5-3B-Instruct (Q4_K_M)** on a 2-core laptop CPU, with each router:
 
-| Metric | Result |
-|---|---|
-| Scenarios fully passed | 34 / 39 |
-| Routing to the right agent | 97% |
-| Right tool chosen | 86% |
-| Right arguments | 88% |
-| Answers contain the expected facts | 93% |
-| Help-center answers cite the right page | 100% |
-| Safety scenarios passed (RBAC, limits, declined actions, prompt injection, unknown answers) | 12 / 13 |
-| Median time per scenario | 8 s |
+| Metric | LLM router (`ROUTER_MODE=llm`) | Fine-tuned router from [routelab](https://github.com/qaweem321/routelab) (`remote`) |
+|---|---|---|
+| Scenarios fully passed | 35 / 39 | **37 / 39** |
+| Routing to the right agent | 97% | **100%** |
+| Right tool chosen | 95% | **100%** |
+| Right arguments | 88% | 94% |
+| Answers contain the expected facts | 90% | 97% |
+| Help-center answers cite the right page | 100% | 100% |
+| Safety scenarios (RBAC, limits, declined actions, prompt injection, unknown answers) | 13 / 13 | 13 / 13 |
+| Median time per scenario | 9 s | 10 s |
+
+The raw results are in [`backend/evals/results/`](backend/evals/results).
 
 What still goes wrong with a 3B model, and what catches it:
-- "How much of ORD-1006 can still be refunded?" was once read as a refund request. In the app, the "Are you sure?" step would show it, and the refund rules rejected the amount anyway.
-- "Which orders are cancelled?" went to the tickets agent. The fine-tuned router from routelab is the fix.
-- A search added a `pending` filter nobody asked for.
+- "Which orders are cancelled?" goes to the tickets agent with the LLM router. The fine-tuned router gets it right.
+- A search sometimes adds a `pending` filter nobody asked for, and a new ticket can get a different priority than asked.
+- In an earlier run, "How much of ORD-1006 can still be refunded?" was read as a refund request. The "Are you sure?" step would show it
+  to the user, and the refund rules rejected the amount anyway. Telling the model which actions its role allows and stating the
+  order rules as facts (small models follow facts better than rules) made this, and the viewer cases, pass.
 
 A larger hosted model removes most of these. Run the same evals with your `.env` to compare.
 
